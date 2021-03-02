@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <meta charset="utf-8" />
+
+  <head>
+    <title>WebSocket Test</title>
+    <style>
+      #output {
+        border: 1px solid #000;
+        padding: 8px;
+        margin: 8px;
+        max-width: 600px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h2>WebSocket Test</h2>
+
+    <div id="offline-menu">
+      <button id="connect">Connect</button>
+    </div>
+
+    <div id="online-menu">
+      <input type="text" id="message" placeholder="write your mesage here..." />
+      <button id="submit">Send</button>
+      <button id="disconnect">Disconnect</button>
+    </div>
+
+    <div id="output"></div>
+
+    <script language="javascript" type="text/javascript">
+      var wsUri = "wss://echo.websocket.org/";
+      var output;
+      var websocket;
+      var offlineMenu = document.getElementById("offline-menu");
+      var onlineMenu = document.getElementById("online-menu");
+      var connectButton = document.getElementById("connect");
+      var disconnectButton = document.getElementById("disconnect");
+      var submitButton = document.getElementById("submit");
+
+      function init() {
+        output = document.getElementById("output");
+        onlineMenu.style.display = "none";
+      }
+
+      function connectWebSocket() {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function (evt) {
+          onOpen(evt);
+        };
+        websocket.onclose = function (evt) {
+          onClose(evt);
+        };
+        websocket.onmessage = function (evt) {
+          onMessage(evt);
+        };
+        websocket.onerror = function (evt) {
+          onError(evt);
+        };
+      }
+
+      function onOpen(evt) {
+        writeToScreen(">>> CONNECTED");
+        onlineMenu.style.display = "block";
+        offlineMenu.style.display = "none";
+      }
+
+      function onClose(evt) {
+        writeToScreen("<<< DISCONNECTED");
+        onlineMenu.style.display = "none";
+        offlineMenu.style.display = "block";
+      }
+
+      function onMessage(evt) {
+        writeToScreen(
+          '<span style="color: blue;">RESPONSE: ' + evt.data + "</span>"
+        );
+      }
+
+      function onError(evt) {
+        writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+      }
+
+      function doSend(message) {
+        writeToScreen("SENT: " + message);
+        websocket.send(message);
+      }
+
+      function writeToScreen(message) {
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.appendChild(pre);
+      }
+
+      window.addEventListener("load", init, false);
+
+      submitButton.addEventListener("click", () => {
+        const message = document.getElementById("message");
+        if (!message.value) {
+          return alert("message is blank");
+        }
+
+        doSend(message.value);
+        message.value = "";
+      });
+
+      connectButton.addEventListener("click", () => {
+        connectWebSocket();
+      });
+
+      disconnectButton.addEventListener("click", () => {
+        websocket.close();
+      });
+    </script>
+  </body>
+</html>
