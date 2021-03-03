@@ -130,13 +130,11 @@
     },
   };
 
-  const x = await WebAssembly.instantiateStreaming(
-    fetch("/assets/a.wasm"),
-    imports
-  );
-  module = x.module;
-  instance = x.instance;
-  console.log({ module, instance });
+  const response = await fetch("/assets/a.wasm");
+  const wasmBytes = new Uint8Array(await response.arrayBuffer());
+  const wasmModule = await WebAssembly.compile(wasmBytes);
+  instance = await WebAssembly.instantiate(wasmModule, imports);
+  console.log({ wasmModule, instance });
 
   const startClarionButton = document.getElementById("start-clarion");
   startClarionButton.addEventListener("click", () => {

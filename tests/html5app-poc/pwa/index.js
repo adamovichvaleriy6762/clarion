@@ -64,6 +64,7 @@ function init() {
 }
 
 function connectWebSocket() {
+  writeToScreen("connecting...");
   websocket = new WebSocket(wsUri);
   websocket.onopen = function (evt) {
     onOpen(evt);
